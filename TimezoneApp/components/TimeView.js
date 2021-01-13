@@ -1,10 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet} from "react-native";
 
-const TimeView = ({timestamp, timezone}) => {
+let interval = null;
+
+const TimeView = ({data}) => {
+    const [time, setDate] = useState(null);
+    const [currentTime, setCurrentTime] = useState(null);
+    
+    if(interval) {
+        clearInterval(interval);
+    }
+    interval = setInterval(() => {
+        // setting system time now
+        setCurrentTime(new Date().toLocaleTimeString());
+        if(!data) return;
+        let d = new Date()
+        // converting time by gmtOffset
+        let convertedDate = d.getTime() + (d.getTimezoneOffset() * 60 + data.gmtOffset) * 1000;
+        // setting local converted time
+        setDate(new Date(convertedDate).toLocaleTimeString());
+    }, 1000);
+    
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>{timestamp}</Text>
+            <Text>system time: {currentTime}</Text>
+            <View style={styles.convertedTimeField}>
+                <Text style={styles.description}>{data ? data.countryName.toUpperCase() : ""}</Text>
+                <Text style={styles.text}>{time}</Text>
+                <Text>GMT: {data ? data.gmtOffset / 3600 : ""}</Text>
+            </View>
         </View>
     )
 }
@@ -12,14 +36,26 @@ const TimeView = ({timestamp, timezone}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#3498db",
+        backgroundColor: "#ecf0f1",
         alignItems: "center",
-        margin: 20
+        margin: 20,
+        padding: 20,
     },
     text: {
-        color: "#ffffff",
-        fontSize: 24,
-        padding: 20,
+        fontSize: 20,
+        padding: 10,
+    },
+    description: {
+        fontSize: 14,
+        margin: 10,
+    },
+    convertedTimeField: {
+        width: "100%",
+        marginTop: 20,
+        padding: 10,
+        borderTopWidth: 0.3,
+        borderColor: "#7f8c8d",
+        alignItems: "center",
     }
 });
 
