@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet} from "react-native";
 
 let interval = null;
@@ -6,20 +6,24 @@ let interval = null;
 const TimeView = ({data}) => {
     const [time, setDate] = useState(null);
     const [currentTime, setCurrentTime] = useState(null);
-    
-    if(interval) {
-        clearInterval(interval);
-    }
-    interval = setInterval(() => {
-        // setting system time now
-        setCurrentTime(new Date().toLocaleTimeString());
-        if(!data) return;
-        let d = new Date()
-        // converting time by gmtOffset
-        let convertedDate = d.getTime() + (d.getTimezoneOffset() * 60 + data.gmtOffset) * 1000;
-        // setting local converted time
-        setDate(new Date(convertedDate).toLocaleTimeString());
-    }, 1000);
+    let timer = null;
+    useEffect(function(){
+        console.log("interval started");
+        timer = setInterval(() => {
+            // setting system time now
+            setCurrentTime(new Date().toLocaleTimeString());
+            if(!data) return;
+            let d = new Date()
+            // converting time by gmtOffset
+            let convertedDate = d.getTime() + (d.getTimezoneOffset() * 60 + data.gmtOffset) * 1000;
+            // setting local converted time
+            setDate(new Date(convertedDate).toLocaleTimeString());
+        }, 1000);
+        return function cleanup(){
+            console.log("cleaned")
+            clearInterval(timer);
+        }
+    }, []);
     
     return (
         <View style={styles.container}>

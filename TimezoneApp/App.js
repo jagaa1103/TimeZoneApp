@@ -17,17 +17,24 @@ const App = () => {
   const [timeObj, setTimeObj] = useState(null);
   const [lat, setLatitude] = useState("");
   const [lng, setLongitude] = useState("");
+  const [showTimeView, setTimeView] = useState(true);
 
   const convert = async () => {
     try {
       // request fetch timezone from API
       let json = await getTimezone(lat, lng);
       // change state and it reflects to child components
+      console.log(json);
       setTimeObj(json);
     }
     catch (err) {
       console.warn(err);
     }
+  }
+
+  const renderTimeView = () => {
+    if(showTimeView) return <TimeView data={timeObj} />
+    else return null;
   }
 
 
@@ -45,7 +52,13 @@ const App = () => {
               <Text style={styles.buttonText}>Convert</Text>
             </TouchableOpacity>
           </View>
-          <TimeView data={timeObj} />
+          { renderTimeView() }
+          
+          <View style={styles.buttonField}>
+            <TouchableOpacity onPress={()=> setTimeView(false)} style={styles.button}>
+              <Text style={styles.buttonText}>close time</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </>
