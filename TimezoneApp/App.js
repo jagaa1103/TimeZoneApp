@@ -17,19 +17,40 @@ const App = () => {
   const [timeObj, setTimeObj] = useState(null);
   const [lat, setLatitude] = useState("");
   const [lng, setLongitude] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [showTimeView, setTimeView] = useState(true);
 
   const convert = async () => {
+    if (lat.length < 1 || lng.length < 1) {
+      setErrorMessage("latitude and longitude are empty!!!");
+      return;
+    }
+
+    if (!checkValidLocation(parseFloat(lat), parseFloat(lng))) {
+      setErrorMessage("Please insert valid location!!!");
+      return;
+    }
+
     try {
       // request fetch timezone from API
       let json = await getTimezone(lat, lng);
       // change state and it reflects to child components
-      console.log(json);
+      // console.log(json);
+      if (json.status === "FAILED") {
+        setErrorMessage(json.message);
+        return;
+      }
+      setErrorMessage("");
       setTimeObj(json);
     }
     catch (err) {
       console.warn(err);
     }
+  }
+
+  const checkValidLocation = (latitude, longitude) => {
+    if ((-90 < latitude && latitude < 90) && (-180 < longitude && longitude < 180 )) return true;
+    return false;
   }
 
   const renderTimeView = () => {
@@ -58,6 +79,10 @@ const App = () => {
             <TouchableOpacity onPress={()=> setTimeView(false)} style={styles.button}>
               <Text style={styles.buttonText}>close time</Text>
             </TouchableOpacity>
+          </View>
+
+          <View>
+            <Text style={{color: "red"}}>{errorMessage}</Text>
           </View>
         </ScrollView>
       </SafeAreaView>
